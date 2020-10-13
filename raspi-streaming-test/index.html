@@ -1,0 +1,54 @@
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>(sample) MJPG-streamer -> CANVAS Tag</title>
+	<link rel="stylesheet" href="index.css">
+	<script src="pixi/pixi.min.js"></script>
+</head>
+<body>
+
+<canvas id="canvas" width="640" height="480"></canvas>
+
+<script>
+// const canvas = document.getElementById('canvas');
+// const context = canvas.getContext('2d');
+
+// function render() {
+// 	const image = new Image();
+//     image.onload = function(){
+// 		canvas.getContext("2d").drawImage(image, 0, 0, 640, 480);
+//     }
+//     // ↓ MJPG-streamerの静止画像をロード
+// 	image.src = "http://192.168.0.9:8081/?action=snapshot";
+// 	// image.src = "/Users/asagi/Dropbox/_DAYZ-web-cam/_/text.png";
+//     requestAnimationFrame(render);
+// }
+// render();
+
+let app = new PIXI.Application(640, 480, {backgroundColor : 0xDAE8F4});
+document.body.appendChild(app.view);
+
+function render(){
+	var someImage = new Image();
+	someImage.crossOrigin = 'anonymous';
+	// someImage.src = 'http://192.168.0.9:8081/?action=snapshot';
+	someImage.src = 'http://124.214.58.232:8081/?action=snapshot';
+	// someImage.src = 'image.jpg';
+	var base = new PIXI.BaseTexture(someImage);
+	var tex = new PIXI.Texture(base);
+	var sprite = new PIXI.Sprite(tex);
+
+	// var sprite;
+	// someImage.onload = function () {
+	// 	var tex = new PIXI.Texture(new PIXI.BaseTexture(someImage));
+	// 	this.sprite = tex;
+	// }
+	app.stage.addChild(sprite);
+	// let hayachi = PIXI.Sprite.fromImage('http://192.168.0.9:8081/?action=snapshot');
+	requestAnimationFrame(render);
+}
+render();
+
+</script>
+</body>
+</html>
