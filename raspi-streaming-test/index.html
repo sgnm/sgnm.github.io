@@ -1,52 +1,93 @@
 <html>
 <head>
 	<meta charset="utf-8"/>
-	<title>(sample) MJPG-streamer -> CANVAS Tag</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+	<title>raspi streaming to canvas</title>
 	<link rel="stylesheet" href="index.css">
 	<script src="pixi/pixi.min.js"></script>
+	<script src="Myfilter.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
 
 <canvas id="canvas" width="640" height="480"></canvas>
 
 <script>
-// const canvas = document.getElementById('canvas');
-// const context = canvas.getContext('2d');
+// canvasのサイズ（任意）
+const SC_WIDTH = 640;
+const SC_HEIGHT = 480;
+const IMG_SRC = "http://124.214.58.232:8081/?action=snapshot";
+//global: http://124.214.58.232:8081/?action=snapshot
+//private: http://192.168.0.9:8081/?action=snapshot
 
-// function render() {
-// 	const image = new Image();
-//     image.onload = function(){
-// 		canvas.getContext("2d").drawImage(image, 0, 0, 640, 480);
-//     }
-//     // ↓ MJPG-streamerの静止画像をロード
-// 	image.src = "http://192.168.0.9:8081/?action=snapshot";
-// 	// image.src = "/Users/asagi/Dropbox/_DAYZ-web-cam/_/text.png";
-//     requestAnimationFrame(render);
+let image = new Image();
+let app = new PIXI.Application(SC_WIDTH, SC_HEIGHT);
+let base = new PIXI.BaseTexture(image);
+let tex = new PIXI.Texture(base);
+let sprite = new PIXI.Sprite(tex);
+
+const init = function(loader, resources) {
+	// アプリ生成
+	// let app = new PIXI.Application(SC_WIDTH, SC_HEIGHT);
+	document.body.appendChild(app.view);
+
+	app.ticker.add(function(){
+		// 時間経過をシェーダに伝える
+		myFilter.uniforms.time += app.ticker.elapsedMS * 0.001;
+	});
+
+	// スプライト追加
+	// let img = new PIXI.Sprite(resources.img.texture);
+	image.crossOrigin = 'anonymous';
+	image.src = IMG_SRC;
+
+	// var base = new PIXI.BaseTexture(image);
+	// var tex = new PIXI.Texture(base);
+	// var sprite = new PIXI.Sprite(tex);
+
+	app.stage.addChild(sprite);
+
+	// フィルタを適用
+	let myFilter = new PIXI.filters.MyFilter();
+	app.stage.filters = [myFilter];
+};
+
+// 画像ロード完了後に初期化
+// PIXI.loader.add('img', IMG_SRC, options).load(init);
+init();
+
+// let app = new PIXI.Application(640, 480, {backgroundColor : 0xDAE8F4});
+// document.body.appendChild(app.view);
+
+// function init(){
+// 	// add glsl filter
+// 	let myFilter = new PIXI.filters.MyFilter();
+// 	app.stage.filters = [myFilter];
 // }
-// render();
-
-let app = new PIXI.Application(640, 480, {backgroundColor : 0xDAE8F4});
-document.body.appendChild(app.view);
 
 function render(){
-	var someImage = new Image();
-	someImage.crossOrigin = 'anonymous';
-	// someImage.src = 'http://192.168.0.9:8081/?action=snapshot';
-	someImage.src = 'http://124.214.58.232:8081/?action=snapshot';
-	// someImage.src = 'image.jpg';
-	var base = new PIXI.BaseTexture(someImage);
+// 	var someImage = new Image();
+// 	someImage.crossOrigin = 'anonymous';
+// 	// someImage.src = 'http://192.168.0.9:8081/?action=snapshot';
+// 	// someImage.src = 'http://124.214.58.232:8081/?action=snapshot';
+// 	someImage.src = 'cat.jpg';
+
+// 	// add image
+	// var base = new PIXI.BaseTexture(someImage);
+	// var tex = new PIXI.Texture(base);
+	// var sprite = new PIXI.Sprite(tex);
+// 	app.stage.addChild(sprite);
+
+	image.src = IMG_SRC;
+	var base = new PIXI.BaseTexture(image);
 	var tex = new PIXI.Texture(base);
 	var sprite = new PIXI.Sprite(tex);
 
-	// var sprite;
-	// someImage.onload = function () {
-	// 	var tex = new PIXI.Texture(new PIXI.BaseTexture(someImage));
-	// 	this.sprite = tex;
-	// }
 	app.stage.addChild(sprite);
-	// let hayachi = PIXI.Sprite.fromImage('http://192.168.0.9:8081/?action=snapshot');
+
 	requestAnimationFrame(render);
 }
+
 render();
 
 </script>
